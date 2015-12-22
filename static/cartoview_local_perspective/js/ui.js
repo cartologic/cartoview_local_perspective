@@ -374,7 +374,7 @@ define([
                 // page counter
                 var content = "0";
                 if (type != "proximity") {
-                    content = "<img class='pageIcon' src='images/" + type + ".png'/>";
+                    content = "<img class='pageIcon' src='/static/cartoview_local_perspective/images/" + type + ".png'/>";
                 }
                 var pageCounter = domConstruct.create('div', {
                     id: 'pageCounter_' + id,
@@ -492,7 +492,7 @@ define([
 
             // page counter
             var pageCounter = domConstruct.create('div', {
-                innerHTML: "<img class='pageIcon' src='images/directions.png'/>"
+                innerHTML: "<img class='pageIcon' src='/static/cartoview_local_perspective/images/directions.png'/>"
             }, pageHeader);
             domClass.add(pageCounter, 'pageCounter');
 
@@ -961,7 +961,7 @@ define([
 
             // location
             if (this.location) {
-                var symLoc = new PictureMarkerSymbol('images/pin.png', 30, 30);
+                var symLoc = new PictureMarkerSymbol('/static/cartoview_local_perspective/images/pin.png', 30, 30);
                 symLoc.setOffset(0, 15);
                 var graLoc = new Graphic(this.location, symLoc, {});
                 graLoc.id = "location";

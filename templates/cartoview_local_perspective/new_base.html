@@ -1,0 +1,18 @@
+{% extends "site_base.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %} {{ block.super }} {% endblock %}
+      {% block extra_head %}
+           <link href="{{ STATIC_URL }}cartoview_local_perspective/image-picker/image-picker.css" rel="stylesheet" />
+      {% endblock %}
+
+{% block body_class %}appinstances{% endblock %}
+
+{% block body_outer %}
+
+<div class="row">
+  {% block body %}{% endblock body %}
+  {% block sidebar %}{% endblock sidebar %}
+</div>
+{% endblock body_outer %}

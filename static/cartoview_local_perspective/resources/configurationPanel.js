@@ -128,7 +128,7 @@
    ],
    "values" : {
       "title" : "Local Perspective",
-      "logo" : "images/logo.png",
+      "logo" : "/static/cartoview_local_perspective/images/logo.png",
       "color" : "#80ab00",
       "cycleColors" : false,
       "defaultToCenter" : true,

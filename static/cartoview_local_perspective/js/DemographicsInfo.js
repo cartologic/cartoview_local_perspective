@@ -37,7 +37,7 @@ define([
       updateForLocation: function(location, container, pageObj) {
          this.location = location;
          this.container = container;
-         this.container.innerHTML = "<br/><br/><img src='images/ajax-loader.gif'/>";
+         this.container.innerHTML = "<br/><br/><img src='/static/cartoview_local_perspective/images/ajax-loader.gif'/>";
          this.pageObj = pageObj;
          
          var url = this.config.demographicsURL + "?ts=" + new Date().getTime();

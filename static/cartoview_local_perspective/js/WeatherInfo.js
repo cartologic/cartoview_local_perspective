@@ -84,7 +84,7 @@ define([
       updateForLocation: function(location, container) {
          this.location = location;
          this.container = container;
-         this.container.innerHTML = "<br/><br/><img src='images/ajax-loader.gif'/>";
+         this.container.innerHTML = "<br/><br/><img src='/static/cartoview_local_perspective/images/ajax-loader.gif'/>";
          
          var pt = webMercatorUtils.webMercatorToGeographic(location);
          var coords = pt.y + "," + pt.x;
@@ -156,7 +156,7 @@ define([
             domClass.add(recLeft, 'recLeft');
             var recRight = domConstruct.create("div", {
                //class: "recRight",
-               innerHTML: "<img class='imgWeather' src='images/w/" + w[timeInfo] + "' />"
+               innerHTML: "<img class='imgWeather' src='/static/cartoview_local_perspective/images/w/" + w[timeInfo] + "' />"
             }, rec);
             domClass.add(recRight, 'recRight');
                 
@@ -185,7 +185,7 @@ define([
             domClass.add(recLeft, 'recLeft');
             var recRight = domConstruct.create("div", {
                //class: "recRight",
-               innerHTML: "<img class='imgWeather' src='images/w/" + w[timeInfo] + "' />"
+               innerHTML: "<img class='imgWeather' src='/static/cartoview_local_perspective/images/w/" + w[timeInfo] + "' />"
             }, rec);
             domClass.add(recRight, 'recRight');
          }

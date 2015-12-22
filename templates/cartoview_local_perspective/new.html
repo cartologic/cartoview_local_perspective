@@ -1,0 +1,139 @@
+{% extends "cartoview_local_perspective/new_base.html" %}
+{% load staticfiles bootstrap_tags %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <style>
+        .image_picker_selector img {
+            width: 160px
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <br><br>
+    <div class="col-xs-18 col-sm-6 col-md-3">
+        <br>
+
+        <div id="selected-map-div" style="display: none" class="thumbnail">
+            <img id="selected-map-img" src="" alt="">
+
+            <div class="caption">
+                <h4 id="selected-map-label"></h4>
+            </div>
+        </div>
+        <button id="modal_button" type="button" class="btn btn-primary btn-lg">
+            Select web map
+        </button>
+    </div>
+    <div class="col-md-6">
+        {{ map_form.media }}
+        <form id='addForm' class="form-horizontal" role="form" method="post"
+              enctype="multipart/form-data"> {% csrf_token %}
+            {{ map_form|as_bootstrap }}
+
+            <div id="load" class="form-group">
+                <button class="btn btn-primary pull-right" title="Save" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3">
+        <img id="loading_img" style="display: none" src="{% static 'cartoview_local_perspective/loading.gif' %}"> </img>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Web Maps</h4>
+                </div>
+                <div id="maps-body" class="modal-body">
+                    <select id="maps-select" class="image-picker show-html">
+                    </select>
+
+                    <div id="page-selection" class="text-center"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="select-map-button" type="button" class="btn btn-primary">Select Map</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_script %}
+    <script src="{{ STATIC_URL }}cartoview_local_perspective/image-picker/image-picker.js"></script>
+    <script src="{{ STATIC_URL }}cartoview_local_perspective/jquery.bootpag.min.js"></script>
+{#    <script src="http://js.arcgis.com/3.14/"></script>#}
+    <script type="text/javascript">
+        var current_maps_list = null;
+        var selected_web_map_id = "";
+        var numItemsPerPage = 6;
+        function load_web_maps(page) {
+            $.ajax({
+                url: "{% url 'arcportal_home' %}sharing/rest/search",
+                cache: false,
+                data: {
+                    q: '(group:"2f0ec8cb03574128bd673cefab106f39")  -type:"Attachment"',//TODO remove static query.
+                    start: page,
+                    num: numItemsPerPage
+                },
+                success: function (maps_list) {
+                    var numOfPages = Math.ceil(maps_list.total / numItemsPerPage);
+                    $('#page-selection').bootpag({total: numOfPages, maxVisible: 5});
+                    current_maps_list = maps_list.results;
+                    $('#maps-select').empty();
+                    $.each(current_maps_list, function (i, map) {
+                        var item = $('<option data-img-src="' + map.thumbnail + '" value=' + map.id + '>' + map.title + '</option>').data('web-map', map)
+                        $('#maps-select').append(item);
+                    });
+                    $("#maps-select").imagepicker({
+                        hide_select: true,
+                        show_label: true
+                    })
+                }
+            });
+        }
+
+        $('#page-selection').bootpag({
+            total: 1 // TODO remove this hard coded number and us the number returned from the rest
+        }).on("page", function (event, /* page number here */ num) {
+            load_web_maps(num);
+        });
+
+        $('#modal_button').click(function () {
+            load_web_maps(1);
+            $('#myModal').modal('show');
+        });
+
+        function load_webmap_configuration(web_map) {
+            $('#loading_img').show();
+            //require(["esri/arcgis/utils"], function (arcgisUtils) {
+              //  arcgisUtils.arcgisUrl = "{% url 'arcportal_home' %}sharing/rest/content/items";
+                //arcgisUtils.getItem(web_map_id).then(function (response) {
+                    $('#id_map_form-abstract').val(web_map.description);
+                    $('#id_map_form-title').val(web_map.title);
+                    $('#selected-map-div').show();
+                //});
+            //});
+            $('#loading_img').hide();
+        }
+        $('#select-map-button').click(function () {
+            var selected_map_img = $('#maps-select').find(':selected').attr("data-img-src");
+            var selected_map_label = $('#maps-select').find(':selected').text();
+            selected_web_map = $('#maps-select').find(':selected').data("web-map");
+            $('#selected-map-img').attr("src", selected_map_img);
+            $('#selected-map-label').text(selected_map_label);
+            $('#id_map_form-web_map_id').val($('#maps-select').val());
+            $('#myModal').modal('hide');
+            load_webmap_configuration(selected_web_map);
+            $('#selected-map-div').show();
+
+
+        });
+
+    </script>
+{% endblock %}
+

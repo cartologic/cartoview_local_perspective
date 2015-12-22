@@ -1156,7 +1156,7 @@ define([
       updateForLocation: function(location, container) {
          this.location = location;
          this.container = container;
-         this.container.innerHTML = "<br/><br/><img src='images/ajax-loader.gif'/>";
+         this.container.innerHTML = "<br/><br/><img src='/static/cartoview_local_perspective/images/ajax-loader.gif'/>";
          
          var queryTask = new QueryTask(this.config.lifestyleURL);
          var query = new Query();

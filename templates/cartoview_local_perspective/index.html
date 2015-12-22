@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 
@@ -17,7 +18,7 @@
     <link rel="stylesheet" href="//js.arcgis.com/3.15/dijit/themes/claro/claro.css">
     <link rel="stylesheet" href="//js.arcgis.com/3.15/esri/css/esri.css">
     <!-- Load any application specific styles -->
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="{% static 'cartoview_local_perspective/css/main.css' %}">
 </head>
 
 <body class="claro app-loading">
@@ -39,7 +40,7 @@
     <div id="panelTop" class="bg rounded shadow">
         <!-- Panel Title -->
         <div id="panelTitle">
-            <div id="panelLogo"><img id="logo" src="images/logo.png" style="height:100%" alt="Logo" /></div>
+            <div id="panelLogo"><img id="logo" src="{% static 'cartoview_local_perspective/images/logo.png' %}" style="height:100%" alt="Logo" /></div>
             <div id="panelText">
                 Local Perspective
             </div>
@@ -52,7 +53,10 @@
     <!-- Panel Menu -->
     <div id="panelMenu" class="rounded shadow"></div>
     <script type="text/javascript">
-    var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+
+    var config_json = {{ config_json|safe }};
+    var package_path = "{% static 'cartoview_local_perspective/' %}"
+    //var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
     var dojoConfig = {
         // The locationPath logic below may look confusing but all its doing is
         // enabling us to load the api from a CDN and load local modules from the correct location.
