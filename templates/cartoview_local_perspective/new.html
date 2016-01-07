@@ -1,6 +1,6 @@
 {% extends "cartoview_local_perspective/new_base.html" %}
-{% load staticfiles bootstrap_tags %}
-
+{% load staticfiles bootstrap %}
+{% load i18n %}
 {% block extra_head %}
     {{ block.super }}
     <style>
@@ -9,69 +9,68 @@
         }
     </style>
 {% endblock %}
-
 {% block body %}
-    <br><br>
-    <div class="col-xs-18 col-sm-6 col-md-3">
-        <br>
-
-        <div id="selected-map-div" style="display: none" class="thumbnail">
-            <img id="selected-map-img" src="" alt="">
-
-            <div class="caption">
-                <h4 id="selected-map-label"></h4>
-            </div>
-        </div>
-        <button id="modal_button" type="button" class="btn btn-primary btn-lg">
-            Select web map
-        </button>
+    <div class="page-header">
+        <h2 class="page-title">Edit</h2>
     </div>
-    <div class="col-md-6">
-        {{ map_form.media }}
-        <form id='addForm' class="form-horizontal" role="form" method="post"
-              enctype="multipart/form-data"> {% csrf_token %}
-            {{ map_form|as_bootstrap }}
+    <ul class="nav nav-pills nav-stacked col-md-2">
+        <li class="active"><a href="#tab_webmap" data-toggle="pill">{% trans 'Web map' %}</a></li>
+        <li><a href="#tab_general" data-toggle="pill">{% trans 'General' %}</a></li>
+        <li><a href="#tab_configuration" data-toggle="pill">{% trans 'Configuration' %}</a></li>
+    </ul>
+    {{ map_form.media }}
+    <form id='addForm' class="form-horizontal" role="form" method="post"
+          enctype="multipart/form-data"> {% csrf_token %}
+        {{ map_form.errors }}
+        <div class="tab-content col-md-10">
 
-            <div id="load" class="form-group">
-                <button class="btn btn-primary pull-right" title="Save" type="submit">Save</button>
-            </div>
-        </form>
-    </div>
-    <div class="col-md-3">
-        <img id="loading_img" style="display: none" src="{% static 'cartoview_local_perspective/loading.gif' %}"> </img>
-    </div>
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Web Maps</h4>
-                </div>
-                <div id="maps-body" class="modal-body">
-                    <select id="maps-select" class="image-picker show-html">
-                    </select>
-
+            <div class="tab-pane active" id="tab_webmap">
+                {{ map_form.web_map_id }}
+                <h4>{% trans 'Select web map' %}</h4>
+                <div class="col-md-9" id="maps-body">
+                    <img id="loading_img" style="display: none"
+                         src="{% static 'cartoview_local_perspective/loading.gif' %}"> </img>
+                    <select id="maps-select" class="image-picker show-html"></select>
                     <div id="page-selection" class="text-center"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="select-map-button" type="button" class="btn btn-primary">Select Map</button>
+                <div class="col-md-3">
+                    <div id="selected-map-div" class="thumbnail">
+                        <img id="selected-map-img" src="" alt="">
+
+                        <div class="caption">
+                            <h4 id="selected-map-label">{% trans 'no map selected' %}</h4>
+                        </div>
+                    </div>
+                    <h4>{% trans 'Selected Map' %}</h4>
                 </div>
+
             </div>
+            <div class="tab-pane" id="tab_general">
+                {{ map_form.title|bootstrap }}
+                {{ map_form.abstract|bootstrap }}
+                {{ map_form.keywords|bootstrap }}
+            </div>
+            <div class="tab-pane" id="tab_configuration">
+                {{ map_form.config|bootstrap }}
+            </div>
+        </div><!-- tab content -->
+        <div id="load" class="form-group">
+            <button class="btn btn-primary pull-right" title="Save" type="submit">Save</button>
         </div>
-    </div>
+    </form>
+
 {% endblock body %}
 
 {% block extra_script %}
     <script src="{{ STATIC_URL }}cartoview_local_perspective/image-picker/image-picker.js"></script>
     <script src="{{ STATIC_URL }}cartoview_local_perspective/jquery.bootpag.min.js"></script>
-{#    <script src="http://js.arcgis.com/3.14/"></script>#}
+    {#    <script src="http://js.arcgis.com/3.14/"></script>#}
     <script type="text/javascript">
         var current_maps_list = null;
-        var selected_web_map_id = "";
+        var selected_web_map_id = $('#id_map_form-web_map_id').val();
         var numItemsPerPage = 6;
         function load_web_maps(page) {
+            $('#loading_img').show();
             $.ajax({
                 url: "{% url 'arcportal_home' %}sharing/rest/search",
                 cache: false,
@@ -91,47 +90,50 @@
                     });
                     $("#maps-select").imagepicker({
                         hide_select: true,
-                        show_label: true
-                    })
+                        show_label: true,
+                        selected: function () {
+                            var selected_map_img = $('#maps-select').find(':selected').attr("data-img-src");
+                            var selected_map_label = $('#maps-select').find(':selected').text();
+                            selected_web_map = $('#maps-select').find(':selected').data("web-map");
+                            $('#selected-map-img').attr("src", selected_map_img);
+                            $('#selected-map-label').text(selected_map_label);
+                            $('#id_map_form-web_map_id').val($('#maps-select').val());
+                            load_webmap_configuration(selected_web_map);
+                        },
+                    });
+                    $('#loading_img').hide();
+                }
+            });
+        }
+
+        load_web_maps(1);
+        if (selected_web_map_id) {
+            $.ajax({
+                url: "{% url 'arcportal_home' %}sharing/rest/content/items/" + selected_web_map_id,
+                cache: false,
+                success: function (web_map) {
+                    $('#selected-map-img').attr("src", web_map.thumbnail);
+                    $('#selected-map-label').text(web_map.title);
                 }
             });
         }
 
         $('#page-selection').bootpag({
-            total: 1 // TODO remove this hard coded number and us the number returned from the rest
+            total: 1 // TODO remove this hard coded number and use the number returned from the rest
         }).on("page", function (event, /* page number here */ num) {
-            load_web_maps(num);
-        });
 
-        $('#modal_button').click(function () {
-            load_web_maps(1);
-            $('#myModal').modal('show');
+            load_web_maps(num)
         });
 
         function load_webmap_configuration(web_map) {
-            $('#loading_img').show();
-            //require(["esri/arcgis/utils"], function (arcgisUtils) {
-              //  arcgisUtils.arcgisUrl = "{% url 'arcportal_home' %}sharing/rest/content/items";
-                //arcgisUtils.getItem(web_map_id).then(function (response) {
-                    $('#id_map_form-abstract').val(web_map.description);
-                    $('#id_map_form-title').val(web_map.title);
-                    $('#selected-map-div').show();
-                //});
-            //});
-            $('#loading_img').hide();
+            if (!$('#id_map_form-title').val() && !$('#id_map_form-abstract').val()) {
+                $('#id_map_form-abstract').val(web_map.description);
+                $('#id_map_form-title').val(web_map.title);
+            }
         }
-        $('#select-map-button').click(function () {
-            var selected_map_img = $('#maps-select').find(':selected').attr("data-img-src");
-            var selected_map_label = $('#maps-select').find(':selected').text();
-            selected_web_map = $('#maps-select').find(':selected').data("web-map");
-            $('#selected-map-img').attr("src", selected_map_img);
-            $('#selected-map-label').text(selected_map_label);
-            $('#id_map_form-web_map_id').val($('#maps-select').val());
-            $('#myModal').modal('hide');
-            load_webmap_configuration(selected_web_map);
-            $('#selected-map-div').show();
 
-
+        $("a[href='#tab_configuration']").on('shown.bs.tab', function (e) {
+            $('#id_map_form-config').next('.CodeMirror').get(0).CodeMirror.refresh()
         });
 
     </script>
