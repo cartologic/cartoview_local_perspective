@@ -1,5 +1,5 @@
 {% extends "cartoview_local_perspective/new_base.html" %}
-{% load staticfiles bootstrap %}
+{% load staticfiles bootstrap3 %}
 {% load i18n %}
 {% block extra_head %}
     {{ block.super }}
@@ -46,12 +46,11 @@
 
             </div>
             <div class="tab-pane" id="tab_general">
-                {{ map_form.title|bootstrap }}
-                {{ map_form.abstract|bootstrap }}
-                {{ map_form.keywords|bootstrap }}
+                {%  bootstrap_field map_form.title %}
+                {%  bootstrap_field map_form.abstract %}
             </div>
             <div class="tab-pane" id="tab_configuration">
-                {{ map_form.config|bootstrap }}
+                {%  bootstrap_field map_form.config %}
             </div>
         </div><!-- tab content -->
         <div id="load" class="form-group">
