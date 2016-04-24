@@ -9,7 +9,7 @@ from django.shortcuts import render
 
 from cartoview.app_manager.models import *
 from forms import NewForm
-from geonode import settings
+from django.conf import settings
 from .models import *
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
