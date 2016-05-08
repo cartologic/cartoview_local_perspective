@@ -75,7 +75,7 @@
                 cache: false,
                 data: {
                     q: '(group:"2f0ec8cb03574128bd673cefab106f39")  -type:"Attachment"',//TODO remove static query.
-                    start: page,
+                    start: ((page - 1) * numItemsPerPage) + 1,
                     num: numItemsPerPage
                 },
                 success: function (maps_list) {
